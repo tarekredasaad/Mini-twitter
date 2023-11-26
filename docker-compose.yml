@@ -1,32 +1,39 @@
-#version: '3.4'
-
-#services:
-#  webapi:
-#    image: ${DOCKER_REGISTRY-}webapi
-#    build:
-#      context: .
-#      dockerfile: web Api\Dockerfile
-
-
 version: '3.4'
+
+networks:
+  dev:
+    driver: bridge
+
 
 services:
   webapi:
-    image: ${DOCKER_REGISTRY-}webapi
-    build:
-      context: .
-      dockerfile: web Api\Dockerfile
-    ports:
-      - "5000:80"
+    image: docker.io/library/onur-proj
+    build: 
+     context: .
+     dockerfile: web Api/Dockerfile
     depends_on:
-      - postgres
+      - "DESKTOP-VMQOHGF"
+    container_name: minitwitter-services 
+    ports:
+      - "5000:80" 
     environment:
-      ConnectionStrings__Default: "Server=DESKTOP-VMQOHGF;Database=MiniTwitter;User Id=postgres;Trust Server Certificate=False;SSL Mode=Disable;Pooling=true;"
+    - ConnectionStrings__Default=Server=DESKTOP-VMQOHGF;Port=5432;Database=MiniTwitter;User Id=postgres;Trust Server Certificate=False;SSL Mode=Disable;Pooling=true;
+    networks:
+     - dev
 
-  postgres:
+  DESKTOP-VMQOHGF:
     image: postgres:latest
+    container_name: DESKTOP-VMQOHGF
     environment:
-      POSTGRES_DB: MiniTwitter
-      POSTGRES_USER: postgres
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=MiniTwitter
     ports:
     - "5432:5432"
+    restart: always
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    networks:
+     - dev
+
+volumes:
+  pgdata:    
